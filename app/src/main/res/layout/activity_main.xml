@@ -9,17 +9,17 @@
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/paper"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/fragmentContainerView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/paper" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/words"
+        android:layout_height="match_parent"
+        android:background="@drawable/words"
         android:alpha="0.2"/>
 
     <androidx.fragment.app.FragmentContainerView

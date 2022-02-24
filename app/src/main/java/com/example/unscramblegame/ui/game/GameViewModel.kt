@@ -1,6 +1,8 @@
 package com.example.unscramblegame.ui.game
 
 import android.text.BoringLayout
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.unscramblegame.MAX_WORDS
 import com.example.unscramblegame.SCORE_WORD
@@ -11,23 +13,24 @@ class GameViewModel: ViewModel() {
     private var mutableListWords:MutableList<String> = mutableListOf()
     private lateinit var currentWord:String
 
-    private var _countWords = 0
-    val countWords:Int
+    private val _countWords = MutableLiveData(0)
+    val countWords:LiveData<Int>
     get() = _countWords
-    private var _score = 0
-    val score:Int
-    get() = _score
-    private lateinit var _currentScrambledWord:String
 
-    val currentScrambledWord:String
+    private var _score = MutableLiveData(0)
+    val score:LiveData<Int>
+    get() = _score
+
+    private val _currentScrambledWord = MutableLiveData<String>()
+    val currentScrambledWord:LiveData<String>
     get() = _currentScrambledWord
 
     init {
         nextWord()
     }
     fun renitializedData(){
-        _countWords = 0
-        _score = 0
+        _countWords.value = 0
+        _score.value = 0
         mutableListWords.clear()
         getNextWord()
     }
@@ -43,13 +46,13 @@ class GameViewModel: ViewModel() {
             getNextWord()
         }
         else{
-            ++_countWords
-            _currentScrambledWord = String(temp)
+            _countWords.value = _countWords.value?.inc()
+            _currentScrambledWord.value = String(temp)
             mutableListWords.add(currentWord)
         }
     }
     fun nextWord():Boolean{
-        return if(countWords < MAX_WORDS){
+        return if(countWords.value!! < MAX_WORDS){
             getNextWord()
             true
         }
@@ -64,6 +67,6 @@ class GameViewModel: ViewModel() {
         return false
     }
     fun increaseScore(){
-        _score += SCORE_WORD
+        _score.value = _score.value?.plus(SCORE_WORD)
     }
 }

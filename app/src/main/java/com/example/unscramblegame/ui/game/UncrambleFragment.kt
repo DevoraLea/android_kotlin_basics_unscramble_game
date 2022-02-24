@@ -3,8 +3,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
 import com.example.unscramblegame.MAX_WORDS
 import com.example.unscramblegame.R
 import com.example.unscramblegame.databinding.FragmentUncrambleBinding
@@ -14,36 +16,61 @@ import com.google.android.material.snackbar.Snackbar
 
 class UncrambleFragment : Fragment() {
 
-    private val gameViewModel: GameViewModel by viewModels()
-
     lateinit var binding: FragmentUncrambleBinding
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+   private val gameViewModel: GameViewModel by viewModels()
 
-    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentUncrambleBinding.inflate(inflater, container, false)
+        //binding = FragmentUncrambleBinding.inflate(inflater, container, false)
+        try{
+        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_uncramble,container,false)
+        var view = binding.root
+        }
+        catch (ex:Exception){
+            ex.printStackTrace()
+            var msg = ex.message.toString()
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initGame()
+
+        binding.gameViewModel = gameViewModel
+        binding.maxNoOfWords = MAX_WORDS
+        binding.lifecycleOwner = viewLifecycleOwner
+
         binding.buttonSkip.setOnClickListener {skipWord()}
         binding.buttonSubmit.setOnClickListener {submitWord()}
+
+
+
+
+
+
+        /*
+        gameViewModel.currentScrambledWord.observe(viewLifecycleOwner,{
+            newWord ->
+            binding.uncrambleWord.text = newWord
+        })
+        gameViewModel.score.observe(viewLifecycleOwner ,{
+            newScore ->
+            binding.score.text = "SCORE: ${gameViewModel.score.value}"
+        })
+        gameViewModel.countWords.observe(viewLifecycleOwner,{
+            newCount ->
+            binding.numberWords.text = "${gameViewModel.countWords.value} of $MAX_WORDS words"
+        })*/
     }
 
-    private fun initGame() {
-        updateWordAndTexts()
-    }
 
     private fun skipWord() {
         if(gameViewModel.nextWord()){
-            updateWordAndTexts()
+            setErrorTextField(false)
         }
         else{
             showDialogScore()
@@ -55,10 +82,7 @@ class UncrambleFragment : Fragment() {
         if(gameViewModel.correctWord(playerWord)){
             setErrorTextField(false)
 
-        if(gameViewModel.nextWord()){
-            updateWordAndTexts()
-        }
-        else{
+        if(!gameViewModel.nextWord()){
             showDialogScore()
         }}
         else{
@@ -75,16 +99,17 @@ class UncrambleFragment : Fragment() {
             binding.editTextTextPersonName.text = null
         }
     }
+    /*
     private fun updateWordAndTexts() {
-        binding.uncrambleWord.text = gameViewModel.currentScrambledWord
+        binding.uncrambleWord.text = gameViewModel.currentScrambledWord.value
         binding.score.text = "SCORE: ${gameViewModel.score}"
         binding.numberWords.text = "${gameViewModel.countWords} of $MAX_WORDS words"
-    }
+    }*/
 
     private fun showDialogScore() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Congratulations")
-            .setMessage("you finish the game with ${gameViewModel.score} score")
+            .setMessage("you finish the game with ${gameViewModel.score.value} score")
             .setIcon(R.drawable.words)
             .setCancelable(false)
             .setNegativeButton("exit"){_ ,_ ->
@@ -99,7 +124,7 @@ class UncrambleFragment : Fragment() {
     private fun restartGame() {
         gameViewModel.renitializedData()
         setErrorTextField(false)
-        updateWordAndTexts()
+        //updateWordAndTexts()
     }
     private fun exitGame(){
         activity?.finish()
